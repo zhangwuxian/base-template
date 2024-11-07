@@ -1,0 +1,17 @@
+[package]
+name = "cmd"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "sample"
+path = "src/sample.rs"
+
+[dependencies]
+clap = { version = "4.5.20", features = ["derive"] }
+common.workspace = true
+log.workspace = true
+log4rs.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
