@@ -5,7 +5,9 @@ PACKAGE_FOLD_NAME = ${TARGET}-$(VERSION)
 
 release:
 	mkdir -p ${BUILD_FOLD}
-	cargo build --release
+	mkdir -p .cargo
+	echo '[target.x86_64-unknown-linux-musl]\nlinker = "x86_64-linux-musl-gcc"' > .cargo/config.toml
+	OPENSSL_DIR=/opt/homebrew/opt/openssl@3 PKG_CONFIG_SYSROOT_DIR=/ RUSTFLAGS="-C linker=x86_64-linux-musl-gcc" cargo build --release --target x86_64-unknown-linux-musl
 	mkdir -p $(BUILD_FOLD)/${PACKAGE_FOLD_NAME}
 	mkdir -p $(BUILD_FOLD)/${PACKAGE_FOLD_NAME}/bin
 	mkdir -p $(BUILD_FOLD)/${PACKAGE_FOLD_NAME}/libs

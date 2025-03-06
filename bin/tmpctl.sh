@@ -5,7 +5,7 @@ workdir=$(cd $(dirname $0); pwd)
 logs_dir="${workdir}/../logs"
 libs_dir="${workdir}/../libs"
 config_dir="${workdir}/../config"
-DEFAULT_MOD="scale-dispatcher"
+DEFAULT_MOD="sample"
 
 # 确保日志目录存在
 mkdir -p "${logs_dir}"
