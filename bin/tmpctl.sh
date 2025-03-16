@@ -5,6 +5,8 @@ workdir=$(cd $(dirname $0); pwd)
 logs_dir="${workdir}/../logs"
 libs_dir="${workdir}/../libs"
 config_dir="${workdir}/../config"
+DEFAULT_SETTINGS="settings.toml"
+DEFAULT_CONFIGS="configs.toml"
 DEFAULT_MOD="sample"
 
 # 确保日志目录存在
@@ -49,11 +51,17 @@ get_pid() {
 # 启动服务
 start_service() {
     mod=$1
-    conf=$2
+    settings=$2
+    conf=$3
+
+    # 如果配置文件未指定，使用默认配置
+    if [ -z "$settings" ]; then
+        settings="${config_dir}/${DEFAULT_SETTINGS}"
+    fi
 
     # 如果配置文件未指定，使用默认配置
     if [ -z "$conf" ]; then
-        conf="${config_dir}/${mod}.toml"
+        conf="${config_dir}/${DEFAULT_CONFIGS}"
     fi
 
     # 检查服务是否已经在运行
@@ -62,9 +70,11 @@ start_service() {
         return 1
     fi
 
-    echo "config: $conf"
+    echo "settings: $settings"
+    echo "configs: $conf"
     echo "${mod} is starting...."
-    nohup "${libs_dir}/${mod}" --conf="$conf" >> "${logs_dir}/${mod}-nohup.log" 2>&1 &
+    #nohup "${libs_dir}/${mod}" --settings="$settings" --conf="$conf" >> "${logs_dir}/${mod}-nohup.log" 2>&1 &
+    nohup "${libs_dir}/${mod}" --settings="$settings" --conf="$conf" >> /dev/null 2>&1 &
 
     # 等待服务启动
     sleep 1
@@ -85,7 +95,7 @@ stop_service() {
 
     if [ -n "$pid" ]; then
         echo "Currently running process number: $pid"
-        kill "$pid"
+        kill -2 "$pid"
 
         # 等待进程结束
         i=0
@@ -112,19 +122,21 @@ stop_service() {
 # 重启服务
 restart_service() {
     mod=$1
-    conf=$2
+    settings=$2
+    conf=$3
 
     echo "Restarting ${mod}..."
     stop_service "${mod}"
     sleep 2  # 等待服务完全停止
-    start_service "${mod}" "${conf}"
+    start_service "${mod}" "$settings" "${conf}"
 }
 
 # 主函数
 main() {
     action=$1
-    mod=${2:-sample}
-    conf=$3
+    mod=${2:-"${DEFAULT_MOD}"}
+    settings=${3:-"${config_dir}/${DEFAULT_SETTINGS}"}
+    conf=${4:-"${config_dir}/${DEFAULT_CONFIGS}"}
 
     if ! validate_params "$mod" "$action"; then
         exit 1
@@ -132,13 +144,13 @@ main() {
 
     case "$action" in
         start)
-            start_service "$mod" "$conf"
+            start_service "$mod" "$settings" "$conf"
             ;;
         stop)
             stop_service "$mod"
             ;;
         restart)
-            restart_service "$mod" "$conf"
+            restart_service "$mod" "$settings" "$conf"
             ;;
         *)
             echo "Invalid action: $action"

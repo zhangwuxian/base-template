@@ -1,4 +1,4 @@
-use crate::config::get_app_conf;
+use crate::config::manager::get_app_settings;
 use crate::tools::{create_fold, file_exists, read_file};
 use std::env;
 use std::path::{Path, PathBuf};
@@ -8,11 +8,11 @@ static APP_ABSOLUTE_PATH: OnceLock<Option<String>> = OnceLock::new();
 
 pub fn init_app_log() {
     // get app conf
-    let conf = get_app_conf();
+    let settings = get_app_settings();
 
     // unified path
-    let log_config = handle_relative_path(&conf.log.log_config);
-    let log_path = handle_relative_path(&conf.log.log_path);
+    let log_config = handle_relative_path(&settings.log.log_config);
+    let log_path = handle_relative_path(&settings.log.log_path);
 
     // check log config.yaml
     if !file_exists(&log_config) {
@@ -23,7 +23,7 @@ pub fn init_app_log() {
     match create_fold(&log_path) {
         Ok(()) => {}
         Err(e) => {
-            panic!("Failed to initialize log directory {log_path}, error: {e:?}");
+            panic!("Failed to initialize log directory {log_path}, error: {e:#?}");
         }
     }
 

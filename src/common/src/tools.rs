@@ -15,9 +15,16 @@ pub fn create_fold(fold: &str) -> Result<(), CommonError> {
 
 pub fn read_file(file_path: &str) -> Result<String, CommonError> {
     if !Path::new(file_path).exists() {
-        return Err(CommonError::CommonError(format!(
+        return Err(CommonError::SystemError(format!(
             "File {file_path} does not exist"
         )));
     }
     Ok(fs::read_to_string(file_path)?)
+}
+
+pub fn get_epoch() -> usize {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs() as usize
 }
